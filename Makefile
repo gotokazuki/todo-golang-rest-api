@@ -27,7 +27,7 @@ inspect:
 	docker inspect todo-golang-rest-api:latest
 
 generate_oas:
-	npx @redocly/cli build-docs docs/openapi.yaml -o openapi/index.html
+	npx @redocly/cli build-docs docs/openapi.yaml -o docs/index.html
 
 run_oas:
-	docker run -p 8081:8080 -e SWAGGER_JSON=/todo/openapi.yaml -v ${PWD}/openapi:/todo swaggerapi/swagger-ui
+	docker run -p 8081:8080 -e SWAGGER_JSON=/todo/openapi.yaml -v ${PWD}/docs:/todo swaggerapi/swagger-ui
