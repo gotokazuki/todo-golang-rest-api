@@ -1,0 +1,52 @@
+services:
+  todo:
+    container_name: todo
+    image: todo-golang-rest-api:latest
+    ports:
+      - "8080:8080"
+    environment:
+      - GIN_MODE=release
+      - DYNAMODB_ENDPOINT=http://localstack:4566
+      - AWS_REGION=ap-northeast-1
+      - DYNAMODB_TABLE=goto-dev-todo
+      - DYNAMODB_CONNECTION_TIMEOUT=3s
+      - SHUTDOWN_TIMEOUT=3s
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8080/todos"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    tty: true
+    depends_on:
+      - localstack
+  localstack:
+    container_name: localstack
+    image: localstack/localstack:latest
+    ports:
+      - "127.0.0.1:4566:4566"
+      - "127.0.0.1:4510-4559:4510-4559"
+    environment:
+      - DEBUG=${DEBUG-}
+      - DOCKER_HOST=unix:///var/run/docker.sock
+      - SKIP_SSL_CERT_DOWNLOAD=1
+      - SERVICES=dynamodb
+      - AWS_DEFAULT_REGION=ap-northeast-1
+    volumes:
+      - localstack-data:/var/lib/localstack
+      - ./localstack/init:/etc/localstack/init
+      - "/var/run/docker.sock:/var/run/docker.sock"
+  swagger-ui:
+    container_name: swagger-ui
+    image: swaggerapi/swagger-ui
+    ports:
+      - "8081:8080"
+    environment:
+      - SWAGGER_JSON=/docs/openapi.yaml
+    volumes:
+      - ./docs:/docs
+    depends_on:
+      - todo
+volumes:
+  localstack-data:

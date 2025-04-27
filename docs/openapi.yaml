@@ -1,0 +1,217 @@
+openapi: 3.0.0
+info:
+  title: TODO API
+  description: REST API for a simple TODO application
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8080
+    description: Development environment
+
+paths:
+  /todos:
+    get:
+      summary: Get all TODOs
+      description: Retrieves all TODO items
+      responses:
+        '200':
+          description: Successfully retrieved TODO list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Todo'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      summary: Create a new TODO
+      description: Creates a new TODO item
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TodoCreate'
+      responses:
+        '201':
+          description: Successfully created TODO
+          headers:
+            Location:
+              description: URL of the created TODO
+              schema:
+                type: string
+                format: uri
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /todos/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+        description: TODO ID
+    get:
+      summary: Get a specific TODO
+      description: Retrieves a TODO item by ID
+      responses:
+        '200':
+          description: Successfully retrieved TODO
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Todo'
+        '404':
+          description: TODO not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    patch:
+      summary: Update a TODO
+      description: Updates an existing TODO item
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TodoUpdate'
+      responses:
+        '200':
+          description: Successfully updated TODO
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Todo'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: TODO not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      summary: Delete a TODO
+      description: Deletes a specified TODO item
+      responses:
+        '204':
+          description: Successfully deleted TODO
+        '404':
+          description: TODO not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  schemas:
+    Todo:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: TODO ID
+        title:
+          type: string
+          description: TODO title
+        description:
+          type: string
+          description: TODO description
+        completed:
+          type: boolean
+          description: Completion status
+        created_at:
+          type: string
+          format: date-time
+          description: Creation timestamp
+        updated_at:
+          type: string
+          format: date-time
+          description: Last update timestamp
+      required:
+        - id
+        - title
+        - completed
+
+    TodoCreate:
+      type: object
+      properties:
+        title:
+          type: string
+          description: TODO title
+        description:
+          type: string
+          description: TODO description
+        completed:
+          type: boolean
+          description: Completion status
+          default: false
+      required:
+        - title
+
+    TodoUpdate:
+      type: object
+      properties:
+        title:
+          type: string
+          description: TODO title
+        description:
+          type: string
+          description: TODO description
+        completed:
+          type: boolean
+          description: Completion status
+
+    Error:
+      type: object
+      properties:
+        code:
+          type: integer
+          description: Error code
+        message:
+          type: string
+          description: Error message
+      required:
+        - code
+        - message
