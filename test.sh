@@ -49,7 +49,7 @@ else
   exit 1
 fi
 
-# Test GET /todos
+# Test GET /todos/:id
 echo -e "${YELLOW}Fetching an updated TODO item...${NC}"
 curl -s -X GET "${BASE_URL}${LOCATION_HEADER_VALUE}" | jq -c .
 
